@@ -1,26 +1,40 @@
 import React from 'react';
-import {View, StyleSheet, Text} from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
+import {useDispatch, useSelector} from 'react-redux';
+import CartItem from '../components/cart/CartItem';
+import Summary from '../components/cart/Summary';
+import {
+  decreseQty,
+  deleteCartItem,
+  increseQty,
+} from '../redux/actions/cartActions';
 
 const CartScreen = () => {
+  const cartItems = useSelector(({cart}) => cart.items);
+  const dispatch = useDispatch();
   return (
     <View style={styles.main}>
-      <View style={styles.itemContainer}></View>
-      <View style={styles.summary}>
-        <View style={styles.summaryField}>
-          <Text style={styles.summaryText}>Delivery Charges</Text>
-          <Text style={styles.summaryValue}>55.00</Text>
-        </View>
-        <View style={styles.summaryField}>
-          <Text style={styles.summaryText}>Sub Total</Text>
-          <Text style={styles.summaryValue}>55.00</Text>
-        </View>
-        <View style={styles.summaryField}>
-          <Text style={styles.summaryText}>Total</Text>
-          <Text style={styles.summaryValue}>55.00</Text>
-        </View>
-      </View>
-      <TouchableOpacity style={styles.btn}>
+      <Text style={styles.title}>Items in Cart</Text>
+      <ScrollView style={styles.itemContainer}>
+        {cartItems?.map(x => (
+          <CartItem
+            key={x.id}
+            picture_url={x.picture_url}
+            name={x.name}
+            qty={x.qty}
+            price={x.price}
+            onIncQty={() => dispatch(increseQty(x.id))}
+            onDecQty={() => dispatch(decreseQty(x.id))}
+            onDelete={() => dispatch(deleteCartItem(x.id))}
+          />
+        ))}
+      </ScrollView>
+      <Summary
+        deliveryCharge={15.0}
+        subTotal={cartItems.reduce((pv, cv) => (pv += cv.price * cv.qty), 0)}
+      />
+      <TouchableOpacity style={styles.btn} onPress={() => alert('chk')}>
         <Text style={styles.btnText}>Checkout</Text>
       </TouchableOpacity>
     </View>
@@ -30,6 +44,11 @@ const CartScreen = () => {
 export default CartScreen;
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 24,
+    marginBottom: 12,
+    color: 'black',
+  },
   main: {
     flex: 1,
     paddingHorizontal: 20,
@@ -39,27 +58,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     flex: 1,
   },
-  summary: {
-    flex: 0.2,
-    backgroundColor: 'white',
-    padding: 20,
-    marginVertical: 20,
-    borderRadius: 10,
-  },
-  summaryField: {
-    flex: 1,
-    flexDirection: 'row',
-    marginVertical: 5,
-    justifyContent: 'space-between',
-  },
-  summaryText: {
-    fontSize: 15,
-  },
-  summaryValue: {
-    fontSize: 16,
-    color: '#000',
-    fontWeight: '500',
-  },
+
   btn: {
     backgroundColor: '#fc0339',
     padding: 15,
