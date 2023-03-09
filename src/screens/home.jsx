@@ -15,14 +15,15 @@ import ProfileScreen from './Profile';
 import axios from 'axios';
 const Tab = createBottomTabNavigator();
 import dummyDataJSON from '../dummy.json';
-import {fetchAllStreams} from '../redux/actions/tvActions';
+import {
+  fetchAllStreams,
+  setStream,
+  setStreamLoading,
+} from '../redux/actions/tvActions';
 import {useDispatch, useSelector} from 'react-redux';
+import TvChannels from '../components/cart/OTT/TvChannels';
 
 const HomeScreen = ({user, route, navigation}) => {
-  function logout() {
-    navigation.replace('Login');
-  }
-
   const disaptch = useDispatch();
   const liveTv = useSelector(({liveTv}) => liveTv);
 
@@ -31,7 +32,7 @@ const HomeScreen = ({user, route, navigation}) => {
       setTimeout(() => res(dummyDataJSON), 3000),
     );
 
-    disaptch(fetchAllStreams(streams.data));
+    disaptch(fetchAllStreams(streams.data.results));
   }
 
   useEffect(() => {
@@ -62,22 +63,51 @@ const HomeScreen = ({user, route, navigation}) => {
         backgroundColor: '#eee',
         flex: 1,
       }}>
-      <View style={{flex: 0.3, backgroundColor: 'black'}}>
-        <Video
-          source={{
-            uri: 'http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8',
-          }}
-          onError={e => console.log('error on vid', e)}
-          style={styles.backgroundVideo}
-          controls={true}
-          resizeMode="contain"
+      {liveTv.selectedStreamId && (
+        <View
+          style={{
+            flex: 0.3,
+            backgroundColor: 'black',
+            position: 'relative',
+          }}>
+          {liveTv.videoStreamLoad && (
+            <ActivityIndicator
+              size={'large'}
+              style={{
+                position: 'absolute',
+                zIndex: 1,
+                width: '100%',
+                height: '100%',
+              }}
+            />
+          )}
+          <Video
+            source={{
+              uri: liveTv.data.find(
+                ({meta}) => meta.id === liveTv.selectedStreamId,
+              )?.detail?.playUrl,
+            }}
+            onLoadStart={() => disaptch(setStreamLoading(true))}
+            onLoad={() => disaptch(setStreamLoading(false))}
+            onError={() => disaptch(setStreamLoading(false))}
+            style={styles.backgroundVideo}
+            controls={true}
+            resizeMode="contain"
+          />
+        </View>
+      )}
+      <View style={[liveTv.selectedStreamId ? {flex: 0.7} : {flex: 1}]}>
+        <FlatList
+          data={liveTv.data}
+          renderItem={({item}) => (
+            <TvChannels
+              title={item.meta.title}
+              selected={item.meta.id === liveTv.selectedStreamId}
+              onSelect={() => disaptch(setStream(item.meta.id))}
+            />
+          )}
+          keyExtractor={item => item.meta.id}
         />
-      </View>
-      <View
-        style={{
-          flex: 0.7,
-        }}>
-        <FlatList />
       </View>
     </SafeAreaView>
   );

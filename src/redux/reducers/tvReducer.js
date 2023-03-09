@@ -1,9 +1,14 @@
-import {FETCH_ALL_STREAMS, SELECT_STREAM_ID} from '../../constants.js';
+import {
+  FETCH_ALL_STREAMS,
+  SELECT_STREAM_ID,
+  SET_LOADING,
+} from '../../constants.js';
 
 const initialState = {
   data: [],
   loading: true,
   selectedStreamId: null,
+  videoStreamLoad: false,
 };
 
 const tvReducer = (state = initialState, action) => {
@@ -15,11 +20,15 @@ const tvReducer = (state = initialState, action) => {
         loading: false,
       };
     case SELECT_STREAM_ID:
-      if (data.find(({meta}) => meta.id === action.payload))
-        return {
-          ...state,
-          selectedStreamId: action.payload,
-        };
+      return {
+        ...state,
+        selectedStreamId: action.payload,
+      };
+    case SET_LOADING:
+      return {
+        ...state,
+        videoStreamLoad: action.payload,
+      };
 
     default:
       return state;

@@ -7,3 +7,4 @@ export const ADD_ITEM_TO_CART = 'ADD_ITEM_TO_CART';
 // For TV / OTT
 export const FETCH_ALL_STREAMS = 'FETCH_ALL_STREAMS';
 export const SELECT_STREAM_ID = 'SELECT_STREAM_ID';
+export const SET_LOADING = 'SET_LOADING';
