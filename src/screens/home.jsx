@@ -1,6 +1,7 @@
-import React from 'react';
-
+import React, {useEffect} from 'react';
 import {
+  ActivityIndicator,
+  FlatList,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -8,13 +9,51 @@ import {
   View,
 } from 'react-native';
 
+import Video from 'react-native-video';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ProfileScreen from './Profile';
+import axios from 'axios';
 const Tab = createBottomTabNavigator();
+import dummyDataJSON from '../dummy.json';
+import {fetchAllStreams} from '../redux/actions/tvActions';
+import {useDispatch, useSelector} from 'react-redux';
 
 const HomeScreen = ({user, route, navigation}) => {
   function logout() {
     navigation.replace('Login');
+  }
+
+  const disaptch = useDispatch();
+  const liveTv = useSelector(({liveTv}) => liveTv);
+
+  async function getTvStreamsData() {
+    const streams = await new Promise((res, rej) =>
+      setTimeout(() => res(dummyDataJSON), 3000),
+    );
+
+    disaptch(fetchAllStreams(streams.data));
+  }
+
+  useEffect(() => {
+    getTvStreamsData();
+  }, []);
+
+  if (liveTv.loading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: '#4d4d4d',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'column',
+        }}>
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={{color: '#fff', fontSize: 22, padding: 8}}>
+          Loading...
+        </Text>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -22,29 +61,33 @@ const HomeScreen = ({user, route, navigation}) => {
       style={{
         backgroundColor: '#eee',
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: '10%',
       }}>
-      <Text style={{fontSize: 40}}> Home Screen </Text>
-      <Text style={{fontSize: 30}}> Welcome {route?.params?.user} </Text>
+      <View style={{flex: 0.3, backgroundColor: 'black'}}>
+        <Video
+          source={{
+            uri: 'http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8',
+          }}
+          onError={e => console.log('error on vid', e)}
+          style={styles.backgroundVideo}
+          controls={true}
+          resizeMode="contain"
+        />
+      </View>
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginVertical: '10%',
+          flex: 0.7,
         }}>
-        <TouchableOpacity
-          onPress={logout}
-          style={[styles.btn, {backgroundColor: '#4a6cf5'}]}>
-          <Text style={styles.btnText}>Logout</Text>
-        </TouchableOpacity>
+        <FlatList />
       </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundVideo: {
+    width: '100%',
+    height: '100%',
+  },
   input: {
     borderBottomWidth: 1,
     width: '100%',
