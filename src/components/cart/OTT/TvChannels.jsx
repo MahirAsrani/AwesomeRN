@@ -2,7 +2,6 @@ import React from 'react';
 import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 
 const TvChannels = ({title, selected, onSelect}) => {
-  //   console.log(title);
   return (
     <TouchableOpacity
       onPress={onSelect}

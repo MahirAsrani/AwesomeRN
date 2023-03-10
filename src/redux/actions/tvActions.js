@@ -4,11 +4,15 @@ import {
   SET_LOADING,
 } from '../../constants';
 
-export const fetchAllStreams = data => {
-  return {
+export const fetchAllStreams = () => async (dispatch, getState) => {
+  const streams = await new Promise((res, rej) =>
+    setTimeout(() => res(require('../../dummy.json')), 3000),
+  );
+
+  dispatch({
     type: FETCH_ALL_STREAMS,
-    payload: data,
-  };
+    payload: streams.data.results,
+  });
 };
 
 export const setStream = id => {

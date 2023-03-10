@@ -5,16 +5,11 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
 import Video from 'react-native-video';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import ProfileScreen from './Profile';
-import axios from 'axios';
-const Tab = createBottomTabNavigator();
-import dummyDataJSON from '../dummy.json';
+
 import {
   fetchAllStreams,
   setStream,
@@ -27,16 +22,8 @@ const HomeScreen = ({user, route, navigation}) => {
   const disaptch = useDispatch();
   const liveTv = useSelector(({liveTv}) => liveTv);
 
-  async function getTvStreamsData() {
-    const streams = await new Promise((res, rej) =>
-      setTimeout(() => res(dummyDataJSON), 3000),
-    );
-
-    disaptch(fetchAllStreams(streams.data.results));
-  }
-
   useEffect(() => {
-    getTvStreamsData();
+    disaptch(fetchAllStreams());
   }, []);
 
   if (liveTv.loading) {
